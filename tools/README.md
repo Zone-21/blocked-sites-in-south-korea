@@ -26,7 +26,7 @@ python3 tools/deepseek.py < question.txt
 只有用户明确授权了其他模型及使用范围后，才可以同时使用 `--model` 和 `--allow-other-model` 放行。
 该参数是显式放行开关，脚本无法自行验证聊天中的授权；调用者必须遵守仓库 `AGENTS.md` 中的规则。
 Flash 调用失败时，不自动切换到其他模型。
-默认输出上限为 2048 tokens，超时为 120 秒，分别用 `--max-tokens` 和 `--timeout` 调整。
+默认输出上限为 16384 tokens，超时为 120 秒，分别用 `--max-tokens` 和 `--timeout` 调整。
 脚本不自动重试，避免重复费用。
 
 执行调用会把明确提供的提示词发送给 DeepSeek，并产生该账号的 API 费用。

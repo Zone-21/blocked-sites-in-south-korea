@@ -22,7 +22,7 @@ def main():
     parser.add_argument("--model", default="deepseek-flash")
     parser.add_argument("--allow-other-model", action="store_true",
                         help="Allow a non-Flash model only with explicit user authorization")
-    parser.add_argument("--max-tokens", type=int, default=2048)
+    parser.add_argument("--max-tokens", type=int, default=16384)
     parser.add_argument("--timeout", type=float, default=120)
     parser.add_argument("--check", action="store_true", help="Check key presence without an API request")
     args = parser.parse_args()
