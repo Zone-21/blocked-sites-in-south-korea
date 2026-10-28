@@ -62,7 +62,8 @@ fetch、检出或重置失败时立即停止，不继续安装。
 bash /workspace/blocked-sites-in-south-korea/tools/init_environment.sh
 ```
 
-仓库必须已由平台克隆，且 `origin` 可访问。脚本依赖标准克隆的远端分支跟踪配置。
+仓库必须已由平台克隆，且 `origin` 可访问。脚本从本次成功 fetch 的 `FETCH_HEAD` 更新 `origin/work`，
+兼容没有自动更新远端分支引用的云端克隆配置。
 将脚本提交到仓库不会自动注册平台初始化钩子；当前工具无法代为修改云环境的初始化配置。
 
 这两个文件保存在仓库的 `tools/` 目录中。重建环境后，克隆或检出包含它们的分支即可恢复；密钥仍需通过环境 Secrets 配置。
