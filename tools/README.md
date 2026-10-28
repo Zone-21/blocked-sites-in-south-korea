@@ -50,12 +50,24 @@ python3 /workspace/tools/deepseek.py '请分析这个问题：……'
 更新仓库脚本后需要重新安装，以同步统一入口。
 
 这属于工作区默认值和智能体指令，不是 DeepSeek 服务端权限策略，也不能强制其他程序采用相同参数。
-环境重建可能清除这些文件；要自动恢复，请在环境配置的初始化命令中，在检出本仓库 `work` 分支后执行：
+环境重建可能清除这些文件。初始化入口 `tools/init_environment.sh` 会进入指定仓库、检出 `work` 分支并执行安装。
+在本仓库已克隆且检出包含该脚本的版本时，可从任意目录执行：
 
 ```bash
-python3 /workspace/blocked-sites-in-south-korea/tools/install_workspace_defaults.py
+bash /workspace/blocked-sites-in-south-korea/tools/init_environment.sh
 ```
 
-当前工具无法代为修改云环境的初始化配置。
+若环境最初检出的是其他分支，为避免找不到入口脚本，请在环境配置的初始化命令中直接填写：
+
+```bash
+set -e
+cd /workspace/blocked-sites-in-south-korea
+git checkout work
+python3 tools/install_workspace_defaults.py
+```
+
+仓库必须已由平台克隆，且本地 `work` 或可跟踪的 `origin/work` 分支必须存在。
+初始化不强制重置文件，也不自动拉取远端更新；检出失败时立即停止，不继续安装。
+将脚本提交到仓库不会自动注册平台初始化钩子；当前工具无法代为修改云环境的初始化配置。
 
 这两个文件保存在仓库的 `tools/` 目录中。重建环境后，克隆或检出包含它们的分支即可恢复；密钥仍需通过环境 Secrets 配置。
