@@ -50,24 +50,19 @@ python3 /workspace/tools/deepseek.py '请分析这个问题：……'
 更新仓库脚本后需要重新安装，以同步统一入口。
 
 这属于工作区默认值和智能体指令，不是 DeepSeek 服务端权限策略，也不能强制其他程序采用相同参数。
-环境重建可能清除这些文件。初始化入口 `tools/init_environment.sh` 会进入指定仓库、检出 `work` 分支并执行安装。
+初始化入口 `tools/init_environment.sh` 会进入指定仓库、执行 `git fetch origin work`、检出 `work` 分支，
+再执行 `git reset --hard origin/work`，最后运行最新的安装脚本。
+fetch、检出或重置失败时立即停止，不继续安装。
+**每次初始化都会丢弃 `work` 分支中已跟踪文件的本地修改和未推送提交，使其与远端一致。**
+脚本不执行 `git clean`；未跟踪文件通常保留，但阻挡远端已跟踪文件写入的未跟踪路径可能被 reset 覆盖。
+持久化工作区在启动前必须已有此初始化入口。网页平台的「初始化命令」填写以下一行：
 在本仓库已克隆且检出包含该脚本的版本时，可从任意目录执行：
 
 ```bash
 bash /workspace/blocked-sites-in-south-korea/tools/init_environment.sh
 ```
 
-若环境最初检出的是其他分支，为避免找不到入口脚本，请在环境配置的初始化命令中直接填写：
-
-```bash
-set -e
-cd /workspace/blocked-sites-in-south-korea
-git checkout work
-python3 tools/install_workspace_defaults.py
-```
-
-仓库必须已由平台克隆，且本地 `work` 或可跟踪的 `origin/work` 分支必须存在。
-初始化不强制重置文件，也不自动拉取远端更新；检出失败时立即停止，不继续安装。
+仓库必须已由平台克隆，且 `origin` 可访问。脚本依赖标准克隆的远端分支跟踪配置。
 将脚本提交到仓库不会自动注册平台初始化钩子；当前工具无法代为修改云环境的初始化配置。
 
 这两个文件保存在仓库的 `tools/` 目录中。重建环境后，克隆或检出包含它们的分支即可恢复；密钥仍需通过环境 Secrets 配置。
