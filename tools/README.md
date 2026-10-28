@@ -36,4 +36,26 @@ Flash 调用失败时，不自动切换到其他模型。
 
 ## 持久化
 
+### 工作区统一入口
+
+执行以下命令，将当前版本脚本及调用规则安装到整个 `/workspace`：
+
+```bash
+python3 tools/install_workspace_defaults.py
+python3 /workspace/tools/deepseek.py '请分析这个问题：……'
+```
+
+安装后，`/workspace/AGENTS.md` 为工作区所有项目指定默认模型 `deepseek-flash` 和输出上限 `16384`。
+安装程序保留该文件中的其他指令，重复运行会更新本工具的指令块及脚本副本。
+更新仓库脚本后需要重新安装，以同步统一入口。
+
+这属于工作区默认值和智能体指令，不是 DeepSeek 服务端权限策略，也不能强制其他程序采用相同参数。
+环境重建可能清除这些文件；要自动恢复，请在环境配置的初始化命令中，在检出本仓库 `work` 分支后执行：
+
+```bash
+python3 /workspace/blocked-sites-in-south-korea/tools/install_workspace_defaults.py
+```
+
+当前工具无法代为修改云环境的初始化配置。
+
 这两个文件保存在仓库的 `tools/` 目录中。重建环境后，克隆或检出包含它们的分支即可恢复；密钥仍需通过环境 Secrets 配置。
