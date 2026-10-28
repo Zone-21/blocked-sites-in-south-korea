@@ -50,20 +50,31 @@ python3 /workspace/tools/deepseek.py '请分析这个问题：……'
 更新仓库脚本后需要重新安装，以同步统一入口。
 
 这属于工作区默认值和智能体指令，不是 DeepSeek 服务端权限策略，也不能强制其他程序采用相同参数。
-初始化入口 `tools/init_environment.sh` 会进入指定仓库、执行 `git fetch origin work`、检出 `work` 分支，
+初始化入口 `tools/init_environment.sh` 会进入指定仓库、显式拉取远端 `work` 并更新 `origin/work`、检出 `work` 分支，
 再执行 `git reset --hard origin/work`，最后运行最新的安装脚本。
-fetch、检出或重置失败时立即停止，不继续安装。
+Git 使用非交互模式，fetch 超时为 60 秒；失败或超时时输出诊断提示，不继续检出、重置或安装。
+检出、重置或安装失败时也立即停止；成功后输出最终提交号。
+保留平台注入的代理、凭据和 CA 配置。`proxy:8080` 是云环境的联网代理，连接失败时应检查终端网络权限及平台代理状态，
+不要通过清除代理或关闭 TLS 验证来处理。
 **每次初始化都会丢弃 `work` 分支中已跟踪文件的本地修改和未推送提交，使其与远端一致。**
 脚本不执行 `git clean`；未跟踪文件通常保留，但阻挡远端已跟踪文件写入的未跟踪路径可能被 reset 覆盖。
-持久化工作区在启动前必须已有此初始化入口。网页平台的「初始化命令」填写以下一行：
-在本仓库已克隆且检出包含该脚本的版本时，可从任意目录执行：
+网页平台的「初始化命令」填写以下一行。它先取得最新 `work` 并强制对齐本地分支，再调用脚本，
+因此重建后即使检出的是旧代码、尚无初始化脚本，也能启动：
+
+```bash
+bash -lc 'set -euo pipefail; export GIT_TERMINAL_PROMPT=0; cd /workspace/blocked-sites-in-south-korea; timeout 60s git fetch origin +refs/heads/work:refs/remotes/origin/work; git checkout -f -B work origin/work; bash tools/init_environment.sh'
+```
+
+引导阶段的 fetch 失败或超时后也会立即退出，不检出分支或调用脚本。
+仓库已处于 `work` 分支且包含初始化脚本时，可从任意目录手动执行：
 
 ```bash
 bash /workspace/blocked-sites-in-south-korea/tools/init_environment.sh
 ```
 
-仓库必须已由平台克隆，且 `origin` 可访问。脚本从本次成功 fetch 的 `FETCH_HEAD` 更新 `origin/work`，
-兼容没有自动更新远端分支引用的云端克隆配置。
-将脚本提交到仓库不会自动注册平台初始化钩子；当前工具无法代为修改云环境的初始化配置。
+仓库必须已由平台克隆，`origin` 可访问，并提供 Bash、Git、GNU `timeout` 和 Python 3。
+显式 refspec `+refs/heads/work:refs/remotes/origin/work` 兼容只跟踪 `main` 或没有自动更新远端引用的克隆配置。
+将脚本提交到仓库不会自动修改平台初始化钩子；需在环境编辑页面保存并发布上述命令，再使用新实例验证自动启动。
+修改脚本时，先在隔离仓库测试，再提交推送，最后在真实工作区执行，以免 reset 覆盖尚未推送的修改。
 
 这两个文件保存在仓库的 `tools/` 目录中。重建环境后，克隆或检出包含它们的分支即可恢复；密钥仍需通过环境 Secrets 配置。
