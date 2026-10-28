@@ -17,12 +17,15 @@
 ```bash
 python3 tools/deepseek.py --check
 python3 tools/deepseek.py '请检查以下设计的边界条件：……'
-python3 tools/deepseek.py --model deepseek-reasoner '请分析以下问题：……'
+python3 tools/deepseek.py --model deepseek-flash '请分析以下问题：……'
 python3 tools/deepseek.py < question.txt
 ```
 
 `--check` 只检查环境变量是否存在，不发送 API 请求，也不验证密钥有效性。
-默认模型为 `deepseek-chat`，可通过 `--model` 指定账号支持的模型；服务端可能返回实际使用的其他模型名称。
+默认模型为 `deepseek-flash`，不使用 `deepseek-chat` 等别名。指定其他模型时，脚本会在发送请求前拒绝调用。
+只有用户明确授权了其他模型及使用范围后，才可以同时使用 `--model` 和 `--allow-other-model` 放行。
+该参数是显式放行开关，脚本无法自行验证聊天中的授权；调用者必须遵守仓库 `AGENTS.md` 中的规则。
+Flash 调用失败时，不自动切换到其他模型。
 默认输出上限为 2048 tokens，超时为 120 秒，分别用 `--max-tokens` 和 `--timeout` 调整。
 脚本不自动重试，避免重复费用。
 

@@ -19,11 +19,15 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("prompt", nargs="?", help="Omit to read from stdin")
-    parser.add_argument("--model", default="deepseek-chat")
+    parser.add_argument("--model", default="deepseek-flash")
+    parser.add_argument("--allow-other-model", action="store_true",
+                        help="Allow a non-Flash model only with explicit user authorization")
     parser.add_argument("--max-tokens", type=int, default=2048)
     parser.add_argument("--timeout", type=float, default=120)
     parser.add_argument("--check", action="store_true", help="Check key presence without an API request")
     args = parser.parse_args()
+    if args.model != "deepseek-flash" and not args.allow_other_model:
+        parser.error("Only deepseek-flash is allowed by default. Other models require explicit user authorization and --allow-other-model.")
     key = os.environ.get("DEEPSEEK_API_KEY")
     if not key:
         print("Missing DEEPSEEK_API_KEY. Add it through environment Secrets.", file=sys.stderr)
